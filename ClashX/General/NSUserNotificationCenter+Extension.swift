@@ -24,6 +24,7 @@ extension NSUserNotificationCenter {
         self.post(title: "No External-controller specified in config file!", info: "We have replace current config with a simple config with external-controller specified!")
     }
     
+    /// 发送配置文件改动通知
     func postConfigFileChangeDetectionNotice() {
         self.post(title: "Config file have been changed", info: "Tap to reload config",identifier:"postConfigFileChangeDetectionNotice")
     }
@@ -52,9 +53,11 @@ extension NSUserNotificationCenter {
 class UserNotificationCenterDelegate:NSObject,NSUserNotificationCenterDelegate {
     static let shared = UserNotificationCenterDelegate()
     
+    /// 处理用户点击通知事件
     func userNotificationCenter(_ center: NSUserNotificationCenter, didActivate notification: NSUserNotification) {
         switch notification.userInfo?["identifier"] as? String {
         case "postConfigFileChangeDetectionNotice":
+            /// 当用户点击文件变动通知时 发送 文件应该重载通知
             NotificationCenter.default.post(Notification(name: kShouldUpDateConfig))
             center.removeAllDeliveredNotifications()
         default:

@@ -41,6 +41,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var statusItemView:StatusItemView!
     
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // 忽略 sigpie 信号
         signal(SIGPIPE, SIG_IGN)
         
         failLaunchProtect()
@@ -55,6 +56,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         statusItemView = StatusItemView.create(statusItem: nil,statusMenu: statusMenu)
         statusItemView.onPopUpMenuAction = {
             [weak self] in
+            
+            /// There is a bug in current versions of the Swift compiler that allow self to be assigned when the word is surrounded by backticks(反引号).
+            /*
+             Allow using optional binding to upgrade self from a weak to strong reference
+             Proposal: SE-0079
+             Author: Evan Maloney
+             Review Manager: TBD
+             Status: Implemented (Swift 4.2)
+             Implementation: apple/swift#15306
+             
+             now we can direct using follow code
+             guard let self = self else { return }
+             */
             guard let `self` = self else {return}
             self.syncConfig()
         }
@@ -80,7 +94,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // start watch config file change
         ConfigFileFactory.shared.watchConfigFile()
         
+        /// 监听应该重载配置文件通知
         NotificationCenter.default.rx.notification(kShouldUpDateConfig).bind {
+            // unowned 和 weak 都不会增加应用计数，但当对象被释放，weak 会自动设为 nil ， 而 unowned 不会，所以使用 unowned 有访问野指针风险
             [unowned self] (note)  in
             self.actionUpdateConfig(self)
         }.disposed(by: disposeBag)

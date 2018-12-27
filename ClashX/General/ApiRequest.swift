@@ -144,8 +144,14 @@ class ApiRequest{
     }
 }
 
-// Stream Apis
+// Stream Apis 该请求会持续一段时间，每次在 stream 中返回部分数据
 extension ApiRequest {
+    
+    /// 该请求会持续一段时间，每次在 stream 中返回部分数据
+    ///
+    /// - Parameters:
+    ///   - retryTimes: 重试次数
+    ///   - callback: 回调
     func requestTrafficInfo(retryTimes:Int = 0, callback:@escaping ((Int,Int)->()) ){
         trafficReq?.cancel()
         var retry = retryTimes

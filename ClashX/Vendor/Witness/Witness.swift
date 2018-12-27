@@ -10,6 +10,7 @@ import Foundation
 
 public typealias FileEventHandler = (_ events: [FileEvent]) -> ()
 
+/// Monitor file system events using Swift
 public struct Witness {
     private let stream: EventStream
     var paths: [String] {

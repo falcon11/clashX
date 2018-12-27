@@ -13,6 +13,8 @@ import Yams
 class ConfigFileFactory {
     static let shared = ConfigFileFactory()
     var witness:Witness?
+    
+    /// 监视 config.yml 文件变动
     func watchConfigFile() {
         let path = (NSHomeDirectory() as NSString).appendingPathComponent("/.config/clash/config.yml")
         witness = Witness(paths: [path], flags: .FileEvents, latency: 0.3) { events in
@@ -71,6 +73,7 @@ class ConfigFileFactory {
         return yaml
     }
     
+
     static func saveToClashConfigFile(config:[String:Any]) {
         // save to ~/.config/clash/config.yml
         _ = self.backupAndRemoveConfigFile(showAlert: false)
@@ -122,6 +125,8 @@ class ConfigFileFactory {
         return true
     }
     
+    
+    /// config.yml 还是不存在，将 sampleConfig.yml 复制到 config.yml
     static func copySampleConfigIfNeed() {
         if !FileManager.default.fileExists(atPath: kConfigFilePath) {
             _ = replaceConfigWithSampleConfig()
@@ -217,6 +222,8 @@ class ConfigFileFactory {
 
 
 extension ConfigFileFactory {
+    
+    /// 如果存在 config.ini 则转成 config.yml, 并将原文件删除
     static func upgardeIniIfNeed() {
         let iniPath = kConfigFolderPath + "config.ini"
         guard FileManager.default.fileExists(atPath: iniPath) else {return}
@@ -267,6 +274,7 @@ extension ConfigFileFactory {
             switch proxyType {
             case "ss":
                 if elems.count < 5 {continue}
+                // 解析 obfs, obfs-host
                 let otherOptions = parseOptions(options:Array(elems[5..<elems.count]))
                 print(otherOptions)
                 newProxy["cipher"] = elems[3]
