@@ -33,3 +33,9 @@ ClashX has upgrade to using .yml formate config file, Checking [Github for Clash
 
 Configuration file at $HOME/.config/clash/config.yml
 
+# Run
+generate **ClashX.a** and **ClashX.h**
+
+```bash
+go build -buildmode=c-archive -o ClashX.a
+```
