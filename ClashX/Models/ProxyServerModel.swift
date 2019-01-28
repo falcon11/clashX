@@ -66,6 +66,7 @@ class ProxyServerModel: NSObject, Codable {
         allowSet.insert("#")
         let fixUrlStr = urlStr.addingPercentEncoding(withAllowedCharacters: allowSet)
         guard let url = URL(string: fixUrlStr ?? "") else {return nil}
+        // base64 位数不够补 "="
         func padBase64(string: String) -> String {
             var length = string.count
             if length % 4 == 0 {
@@ -144,6 +145,7 @@ class ProxyServerModel: NSObject, Codable {
         }
     }
     
+    // 校验配置是否正确
     func isValid() -> Bool {
         var whitespace = NSCharacterSet.whitespacesAndNewlines
         whitespace.insert(":")

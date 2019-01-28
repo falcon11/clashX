@@ -21,6 +21,7 @@ class ConfigFileFactory {
             for event in events {
                 print(event.flags)
                 if event.flags.contains(.ItemModified) || event.flags.contains(.ItemCreated){
+                    /// 提示用户文件变动，点击重载
                     NSUserNotificationCenter.default.postConfigFileChangeDetectionNotice()
                     NotificationCenter.default.post(Notification(name: kConfigFileChange))
                     break
@@ -30,7 +31,7 @@ class ConfigFileFactory {
     }
     
     
-    
+    /// 将 proxyModels 合并到 配置文件的 Proxy
     static func configs(from proxyModels:[ProxyServerModel]) -> [String:Any]? {
         guard let yamlStr = try? String(contentsOfFile: kConfigFilePath),
             var yaml = (try? Yams.load(yaml: yamlStr)) as? [String:Any] else {return nil}
@@ -69,13 +70,14 @@ class ConfigFileFactory {
             proxyGroups = [autoGroup,selectGroup]
             yaml["Proxy Group"] = proxyGroups
         }
-        
+        /// 生成新的配置对象
         return yaml
     }
     
 
     static func saveToClashConfigFile(config:[String:Any]) {
         // save to ~/.config/clash/config.yml
+        /// 提示是否备份原有配置
         _ = self.backupAndRemoveConfigFile(showAlert: false)
         var config = config
         var finalConfigString = ""
@@ -99,8 +101,10 @@ class ConfigFileFactory {
                 config["Rule"] = nil
             }
             
+            /// 生成 yaml 字符串
             finalConfigString = try Yams.dump(object: config,allowUnicode:true) + finalConfigString
             
+            /// 将 yaml 字符串 写入配置路径
             try finalConfigString.write(toFile: kConfigFilePath, atomically: true, encoding: .utf8)
             
         } catch {
@@ -111,6 +115,11 @@ class ConfigFileFactory {
        
     }
     
+    
+    /// 备份原有配置文件
+    ///
+    /// - Parameter showAlert: 是否提示用户
+    /// - Returns: 成功返回 true
     @discardableResult
     static func backupAndRemoveConfigFile(showAlert:Bool = false) -> Bool {
         let path = kConfigFilePath
@@ -126,13 +135,14 @@ class ConfigFileFactory {
     }
     
     
-    /// config.yml 还是不存在，将 sampleConfig.yml 复制到 config.yml
+    /// config.yml 如果不存在，将 sampleConfig.yml 复制到 config.yml
     static func copySampleConfigIfNeed() {
         if !FileManager.default.fileExists(atPath: kConfigFilePath) {
             _ = replaceConfigWithSampleConfig()
         }
     }
     
+    /// 备份和替换原有配置文件
     static func replaceConfigWithSampleConfig() -> Bool {
         if (!backupAndRemoveConfigFile(showAlert: true)) {
             return false
@@ -145,6 +155,7 @@ class ConfigFileFactory {
     
     
     static func importConfigFile() {
+        /// 选择文件弹窗
         let openPanel = NSOpenPanel()
         openPanel.title = "Choose Config Json File"
         openPanel.allowsMultipleSelection = false

@@ -180,6 +180,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
     
+    /// 捕获崩溃信息
     func registCrashLogger() {
         func exceptionHandler(exception : NSException) {
             print(exception)
@@ -294,18 +295,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     func resetStreamApi() {
+        // 请求上下行速度
         ApiRequest.shared.requestTrafficInfo(){ [weak self] up,down in
             guard let `self` = self else {return}
             ((self.statusItem.view) as! StatusItemView).updateSpeedLabel(up: up, down: down)
         }
         
+        // 请求日志
         ApiRequest.shared.requestLog { (type, msg) in
             Logger.log(msg: msg,level: ClashLogLevel(rawValue: type) ?? .unknow)
         }
     }
 
-    
-//Actions:
+    // MARK: Actions
     
     @IBAction func actionQuit(_ sender: Any) {
         NSApplication.shared.terminate(self)
@@ -356,6 +358,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     @IBAction func actionUpdateConfig(_ sender: Any) {
+        /// 重载配置
         ApiRequest.requestConfigUpdate() { [unowned self] error in
             if (error == nil) {
                 self.syncConfig()
